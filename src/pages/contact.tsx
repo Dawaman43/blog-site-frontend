@@ -14,7 +14,6 @@ interface FormData {
 }
 
 function ContactPage() {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
@@ -26,10 +25,8 @@ function ContactPage() {
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
     if (savedTheme) {
-      setTheme(savedTheme);
       document.documentElement.classList.toggle("dark", savedTheme === "dark");
     } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      setTheme("dark");
       document.documentElement.classList.add("dark");
     }
   }, []);
@@ -38,12 +35,13 @@ function ContactPage() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      // Mock API call (replace with your endpoint)
       await new Promise((resolve) => setTimeout(resolve, 1000));
       console.log("Form submitted:", formData);
       alert("Message sent successfully!");
       setFormData({ name: "", email: "", message: "" });
-    } catch (error) {
+    } catch (err: unknown) {
+      console.log(err);
+
       alert("Failed to send message. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -143,7 +141,6 @@ function ContactPage() {
 
           {/* Contact Info and Map */}
           <div className="space-y-8">
-            {/* Contact Info */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
