@@ -12,11 +12,18 @@ interface Blog {
   images: { url: string; public_id: string }[];
   createdAt: string;
 }
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
 
-class ErrorBoundary extends React.Component<React.PropsWithChildren> {
-  state = { hasError: false, error: null };
+class ErrorBoundary extends React.Component<
+  React.PropsWithChildren,
+  ErrorBoundaryState
+> {
+  state: ErrorBoundaryState = { hasError: false, error: null };
 
-  static getDerivedStateFromError(error: Error) {
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };
   }
 

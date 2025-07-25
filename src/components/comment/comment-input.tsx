@@ -2,7 +2,7 @@ import { useState, useCallback, Component } from "react";
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { Send, Loader2, AlertCircle, X } from "lucide-react";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 interface CommentInputProps {
   blogId: string;

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Twitter, Facebook, Linkedin, Github, Mail } from "lucide-react";
+import { Linkedin, Github, Mail } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -11,10 +11,10 @@ function Footer() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateEmail = (email: string) => {
-    return /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email);
+    return /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email);
   };
 
-  const handleSubscribe = async (e: any) => {
+  const handleSubscribe = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validateEmail(email)) {
       toast.error("Please enter a valid email address", { duration: 3000 });
@@ -43,8 +43,10 @@ function Footer() {
         duration: 3000,
       });
       setEmail("");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to subscribe. Try again later.", {
+    } catch (err: unknown) {
+      console.log(err);
+
+      toast.error("Failed to subscribe. Try again later.", {
         duration: 3000,
       });
     } finally {

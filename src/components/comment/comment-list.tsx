@@ -651,11 +651,15 @@ function CommentList({ blogId }: CommentListProps) {
     setReplyingTo(null);
   };
 
+  function isUser(value: unknown): value is User {
+    return value != null && typeof value === "object" && "_id" in value;
+  }
+
   const renderComment = (comment: Comment, depth: number = 0) => {
-    const isAuthor = user && comment.user._id === user._id;
-    const isAdmin = user && user.role === "admin";
-    const canEditOrDelete = user && (isAuthor || isAdmin);
-    const isLiked = user && comment.likes.includes(user._id);
+    const isAuthor = isUser(user) && comment.user._id === user._id;
+    const isAdmin = isUser(user) && user.role === "admin";
+    const canEditOrDelete = isUser(user) && (isAuthor || isAdmin);
+    const isLiked = isUser(user) && comment.likes.includes(user._id);
 
     return (
       <motion.div

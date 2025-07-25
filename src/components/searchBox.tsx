@@ -66,6 +66,8 @@ export function SearchBox() {
           setIsModalOpen(false);
         }
       } catch (err) {
+        console.log(err);
+
         setSuggestions([]);
         setIsModalOpen(false);
       } finally {

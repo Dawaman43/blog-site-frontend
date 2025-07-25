@@ -4,10 +4,6 @@ import { debounce } from "lodash";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import {
-  oneDark,
-  oneLight,
-} from "react-syntax-highlighter/dist/esm/styles/prism";
 import toast, { Toaster } from "react-hot-toast";
 import { AlertCircle } from "lucide-react";
 import CommentInput from "@/components/comment/comment-input";
@@ -38,50 +34,46 @@ function BlogDetailPage() {
   const [refreshComments, setRefreshComments] = useState(0);
   const maxRetries = 3;
 
-  const incrementViewCount = useCallback(
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    debounce(async (blogId: string) => {
-      const viewedBlogs = JSON.parse(
-        sessionStorage.getItem("viewedBlogs") || "[]"
-      ) as string[];
-      if (viewedBlogs.includes(blogId)) return;
+  const incrementViewCount = debounce(async (blogId: string) => {
+    const viewedBlogs = JSON.parse(
+      sessionStorage.getItem("viewedBlogs") || "[]"
+    ) as string[];
+    if (viewedBlogs.includes(blogId)) return;
 
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_API}/blogs/${blogId}/view`,
-          {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-          }
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_API}/blogs/${blogId}/view`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `HTTP error ${response.status}: ${response.statusText}`
         );
-
-        if (!response.ok) {
-          throw new Error(
-            `HTTP error ${response.status}: ${response.statusText}`
-          );
-        }
-
-        const contentType = response.headers.get("content-type");
-        if (!contentType?.includes("application/json")) {
-          throw new Error("Invalid response: Expected JSON");
-        }
-
-        const data = await response.json();
-        if (data.success) {
-          setBlog((prev) =>
-            prev ? { ...prev, readCount: data.readCount } : prev
-          );
-          sessionStorage.setItem(
-            "viewedBlogs",
-            JSON.stringify([...viewedBlogs, blogId])
-          );
-        }
-      } catch (err) {
-        console.error("[BlogDetailPage] Error incrementing view count:", err);
       }
-    }, 1000),
-    []
-  );
+
+      const contentType = response.headers.get("content-type");
+      if (!contentType?.includes("application/json")) {
+        throw new Error("Invalid response: Expected JSON");
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        setBlog((prev) =>
+          prev ? { ...prev, readCount: data.readCount } : prev
+        );
+        sessionStorage.setItem(
+          "viewedBlogs",
+          JSON.stringify([...viewedBlogs, blogId])
+        );
+      }
+    } catch (err) {
+      console.error("[BlogDetailPage] Error incrementing view count:", err);
+    }
+  }, 1000);
 
   const fetchBlogAndIncrementView = useCallback(async () => {
     if (blog && retryCount === 0) {
@@ -145,7 +137,7 @@ function BlogDetailPage() {
     } finally {
       setLoading(false);
     }
-  }, [slug, retryCount, blog, incrementViewCount]);
+  }, [slug, retryCount, blog]);
 
   useEffect(() => {
     fetchBlogAndIncrementView();
@@ -271,28 +263,28 @@ function BlogDetailPage() {
                 code({ className, children, ...props }) {
                   const match = /language-(\w+)/.exec(className || "");
                   return match ? (
-                    <div className="relative my-6 rounded-xl overflow-hidden shadow-lg animate-fade-in-up">
-                      <div className="flex justify-between items-center bg-gray-100 dark:bg-gray-800 p-3 border-b border-gray-200 dark:border-gray-600">
+                    <div className="relative my-6 rounded-xl overflow-hidden shadow-lg animate-fade-in-up bg-gray-100 dark:bg-gray-800">
+                      <div className="flex justify-between items-center bg-gray-200 dark:bg-gray-700 px-3 py-2 border-b border-gray-300 dark:border-gray-600">
                         <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
                           {match[1]}
                         </span>
                         <button
                           onClick={() => copyToClipboard(String(children))}
-                          className="px-4 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium hover:shadow-md"
+                          className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium hover:shadow-md"
                         >
                           Copy Code
                         </button>
                       </div>
                       <SyntaxHighlighter
-                        style={
-                          document.documentElement.classList.contains("dark")
-                            ? oneDark
-                            : oneLight
-                        }
                         language={match[1]}
                         PreTag="div"
-                        className="rounded-b-xl"
-                        {...props}
+                        className="rounded-b-xl bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+                        codeTagProps={{
+                          className: "text-sm font-mono",
+                        }}
+                        {...(props as React.ComponentProps<
+                          typeof SyntaxHighlighter
+                        >)}
                       >
                         {String(children).replace(/\n$/, "")}
                       </SyntaxHighlighter>

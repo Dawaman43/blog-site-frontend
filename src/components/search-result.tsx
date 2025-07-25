@@ -114,6 +114,8 @@ export function SearchResultsPage() {
           setBlogs([]);
         }
       } catch (err) {
+        console.log(err);
+
         setError("An error occurred while fetching results. Please try again.");
         setBlogs([]);
       } finally {
